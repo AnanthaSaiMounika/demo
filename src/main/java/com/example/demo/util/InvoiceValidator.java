@@ -32,6 +32,12 @@ public class InvoiceValidator {
         if (request.getHeader().getAmount() != (totalAllItemsAmount + request.getBillSundry().getAmount())) {
             throw new Exception("Given amount is not appropriate with purchased items and billSundry");
         }
+        Long minValue = Long.MIN_VALUE;
+        Long maxValue = Long.MAX_VALUE;
+        Long billSundryAmount = request.getBillSundry().getAmount();
+        if (!(billSundryAmount >= minValue && billSundryAmount <= maxValue)) {
+            throw new Exception("Bill Sundry amount is not in valid range");
+        }
         return Boolean.TRUE;
     }
 }

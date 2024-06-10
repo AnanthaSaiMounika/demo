@@ -87,4 +87,47 @@ public class InvoiceService {
         }
         return resp;
     }
+
+    public InvoiceHeader updateInvoice(String headerId, InvoiceReq request) throws Exception {
+        validator.validateInvoicePayload(request);
+        Optional<InvoiceHeader> headerOpt = headerRepository.findById(headerId);
+        if (headerOpt.isPresent()) {
+            InvoiceHeader header = headerOpt.get();
+            List<Item> items = itemRepository.getAllItemsByHeaderId(headerId);
+            for (Item newItem: request.getInvoiceItems()) {
+                Boolean isNewItem = Boolean.TRUE;
+                for (Item item: items) {
+                    if (newItem.getId().equals(item.getId())) {
+                        isNewItem = Boolean.FALSE;
+                        item.setName(newItem.getName());
+                        item.setPrice(newItem.getPrice());
+                        item.setQuantity(newItem.getQuantity());
+                        item.setAmount(newItem.getAmount());
+                        itemRepository.save(item);
+                    }
+                }
+                if (isNewItem.equals(Boolean.TRUE)) {
+                    itemRepository.save(newItem);
+                }
+            }
+            List<InvoiceBillSundry> sundries = billSundryRepository.findAllBillSundryByHeaderId(headerId);
+            if(sundries != null && !sundries.isEmpty()) {
+                InvoiceBillSundry sundry = sundries.get(0);
+                sundry.setAmount(request.getBillSundry().getAmount());
+                sundry.setBillSundryName(request.getBillSundry().getBillSundryName());
+                billSundryRepository.save(sundry);
+            } else {
+                request.getBillSundry().setHeaderId(headerId);
+                billSundryRepository.save(request.getBillSundry());
+            }
+            header.setAmount(request.getHeader().getAmount());
+            header.setBillingAddress(request.getHeader().getBillingAddress());
+            header.setCustomerName(request.getHeader().getCustomerName());
+            header.setGstIN(request.getHeader().getGstIN());
+            header.setInvoiceNumber(request.getHeader().getInvoiceNumber());
+            header.setShippingAddress(request.getHeader().getShippingAddress());
+            return headerRepository.save(header);
+        }
+        return null;
+    }
 }
