@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.data.models.InvoiceHeader;
 import com.example.demo.data.models.InvoiceReq;
+import com.example.demo.data.models.InvoiceResponse;
 import com.example.demo.service.InvoiceService;
 
 @RestController
@@ -41,7 +43,17 @@ public class InvoiceController {
 
     @DeleteMapping("/{id}")
     public Boolean deleteInvoice(@PathVariable(name = "id", required = true) String headerId) {
-        
+        return invoiceService.deleteInvoice(headerId);
+    }
+
+    @GetMapping("")
+    public List<InvoiceResponse> getAllInvoices() {
+        return invoiceService.getAllInvoiceResponses();
+    }
+
+    @GetMapping("{id}")
+    public InvoiceResponse getInvoiceById(@PathVariable(name = "id", required = true) String headerId) {
+        return invoiceService.getInvoiceById(headerId);
     }
     
 }

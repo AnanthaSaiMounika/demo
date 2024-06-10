@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.data.models.InvoiceBillSundry;
 import com.example.demo.data.models.InvoiceHeader;
 import com.example.demo.data.models.InvoiceReq;
+import com.example.demo.data.models.InvoiceResponse;
 import com.example.demo.data.models.Item;
 import com.example.demo.data.repository.InvoiceBillSundryRepository;
 import com.example.demo.data.repository.InvoiceHeaderRepository;
@@ -56,5 +58,33 @@ public class InvoiceService {
         return Boolean.TRUE;
     }
 
-    public List<Invi
+    public List<InvoiceResponse> getAllInvoiceResponses() {
+        List<InvoiceHeader> allInvoices = headerRepository.findAll();
+        List<InvoiceResponse> response = new ArrayList<>();
+        for (InvoiceHeader header: allInvoices) {
+            InvoiceResponse resp = new InvoiceResponse();
+            resp.setId(header.getId());
+            resp.setInvoiceHeader(header);
+            List<Item> allItems = itemRepository.getAllItemsByHeaderId(header.getId());
+            resp.setInvoiceItems(allItems);
+            List<InvoiceBillSundry> billSundries = billSundryRepository.findAllBillSundryByHeaderId(header.getId());
+            resp.setInvoiceBillSundryList(billSundries);
+        }
+        return response;
+    }
+
+    public InvoiceResponse getInvoiceById(String headerId) {
+        Optional<InvoiceHeader> invoice = headerRepository.findById(headerId);
+        InvoiceResponse resp = new InvoiceResponse();
+        if (invoice.isPresent()) {
+            InvoiceHeader header = invoice.get();
+            resp.setId(header.getId());
+            resp.setInvoiceHeader(header);
+            List<Item> allItems = itemRepository.getAllItemsByHeaderId(header.getId());
+            resp.setInvoiceItems(allItems);
+            List<InvoiceBillSundry> billSundries = billSundryRepository.findAllBillSundryByHeaderId(header.getId());
+            resp.setInvoiceBillSundryList(billSundries);
+        }
+        return resp;
+    }
 }
